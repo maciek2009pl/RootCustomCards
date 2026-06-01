@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@theme {
+  --breakpoint-card: 28.125rem;
+  --breakpoint-mga: 150rem;
+  --breakpoint-smga: 120rem;
+  --breakpoint-gmga: 180rem;
+}
