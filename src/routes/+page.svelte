@@ -1,5 +1,6 @@
 <script lang="ts">
   let craftSymbols = $state<CraftSymbol[]>([]);
+  let craftSymbolsRev = $state<CraftSymbol[]>([]);
   let craftCounter = $state(0);
   let cardSuit = $state('');
   let circleType= $state('');
@@ -41,10 +42,13 @@
   import craftBG from '/src/lib/assets/craftBG.png';
   import Nested from './nested.svelte';
   import emptySuit from '/src/lib/assets/empty icon.png';
+  import html2canvas from 'html2canvas-pro';  
   import { onMount } from 'svelte';
 
   let loaded = $state(false);
-
+  let hiddenCapture = $state(true);
+  let cardTitle = $state("")
+  let cardDescription = $state("");
 
   onMount(() => {
     console.log("mount");
@@ -148,38 +152,67 @@
     }
   }
   function setBoxType(type: string) {
-      boxButtonState.forEach((button) => {
-        button.isClicked = false;
-      });
-      switch(type) {
-        case 'paper':
-          cardBox = paperBox;
-          boxButtonState[0].isClicked = true;
-          break;
-        case 'stone':
-          cardBox = stoneBox;
-          boxButtonState[1].isClicked = true;
-          break;
-      }
+    boxButtonState.forEach((button) => {
+      button.isClicked = false;
+    });
+    switch(type) {
+      case 'paper':
+        cardBox = paperBox;
+        boxButtonState[0].isClicked = true;
+        break;
+      case 'stone':
+        cardBox = stoneBox;
+        boxButtonState[1].isClicked = true;
+        break;
     }
+  }
 
-    function hideShowcase() {
-      showcaseVisible = false;
-    }
-    function changePos() {
-      return `top-[${toppos}px] left-[${leftpos}px] scale-[${scalepos}%]` ;
-    }
+  function hideShowcase() {
+    showcaseVisible = false;
+  }
+  function changePos() {
+    return `top-[${toppos}px] left-[${leftpos}px] scale-[${scalepos}%]` ;
+  }
+
+
+
+  function downloadURI(uri: string, name: string) {
+    var link = document.createElement("a");
+    link.download = name;
+    link.href = uri;
+    link.click();
+  }
+
+  function screenshot() {
+    console.log("screenshot");
+    const el = document.querySelector("#captureCard") as HTMLElement | null;
+    if (!el) return;
+    console.log("screenshot2");
+
+    html2canvas(el, {
+      useCORS: true,
+      scale: 4
+    }).then((canvas: HTMLCanvasElement) => {
+      downloadURI(
+        canvas
+          .toDataURL("image/jpeg")
+          .replace("image/jpeg", "image/octet-stream"),
+        "yourImage.jpg"
+      );
+    });
+    console.log("screenshot3");
+  }
 
 </script>
 
 
-<div class=" flex flex-row flex-wrap gap-4 justify-center">
-  <div class=" w-[250px] aspect-3/4 mx-16 card:w-[450px] card:h-[625px] flex">
+<div class=" flex flex-row flex-wrap mt-8 gap-4 justify-center">
+  <div id="captureCard" class=" w-[250px] aspect-3/4 mx-16 card:w-[450px] card:h-[625px] flex">
     <div class="relative">
       <img hidden={!showcaseVisible} class="bleedBorder shadow/90" src={cardBase} alt="Card Base"/>
       <img hidden={showcaseVisible} class="aspect-72/100 object-fit shadow/90" src={files?.length ? URL.createObjectURL(files[0]) : undefined} alt="Card Base"/>
       {#if cardBox!=""}
-        <img class="absolute bottom-0 right-0 mr-4 mb-2 card:mr-6 card:mb-9 w-[172px] card:w-[310px]" src={cardBox} alt="Card Box"/>
+        <img class="absolute top-[256px] w-[172px] card:top-[464px] right-0 mr-4 mb-2 card:mr-6 card:mb-9 card:w-[310px]" src={cardBox} alt="Card Box"/>
       {/if}
       <img class="absolute left-0 bottom-0 ml-4 mb-2 card:ml-8 card:mb-11 w-[39px] card:w-[70px]" src={craftBG} alt="Card Box"/>
       {#if circleType==circleWild}
@@ -201,26 +234,37 @@
       {#if circleType!=""}
         <img class="absolute left-0 top-0 ml-5 mt-5 card:ml-10 card:mt-10 w-[44px] h-[44px] card:w-[80px] card:h-[80px]" src={circleType} alt="Card Box"/>
       {/if}
-      
+      <img class="absolute w-[22px] h-[22px] top-0 right-0 mr-5 mt-5 card:w-[36px] card:h-[36px] card:mr-9 card:mt-9" src={craftSymbols[0]?.urlName} alt={`Craft Symbol ${1}`}/>
+      <img class="absolute w-[22px] h-[22px] top-0 right-0 mr-10 mt-5 card:w-[36px] card:h-[36px] card:mr-18 card:mt-9" src={craftSymbols[1]?.urlName} alt={`Craft Symbol ${2}`}/>
+      <img class="absolute w-[22px] h-[22px] top-0 right-0 mr-15 mt-5 card:w-[36px] card:h-[36px] card:mr-27 card:mt-9" src={craftSymbols[2]?.urlName} alt={`Craft Symbol ${3}`}/>
+      <img class="absolute w-[22px] h-[22px] top-0 right-0 mr-20 mt-5 card:w-[36px] card:h-[36px] card:mr-36 card:mt-9" src={craftSymbols[3]?.urlName} alt={`Craft Symbol ${4}`}/>
+      <img class="absolute w-[22px] h-[22px] top-0 right-0 mr-25 mt-5 card:w-[36px] card:h-[36px] card:mr-45 card:mt-9" src={craftSymbols[4]?.urlName} alt={`Craft Symbol ${5}`}/>
+      <img class="absolute w-[22px] h-[22px] top-0 right-0 mr-30 mt-5 card:w-[36px] card:h-[36px] card:mr-54 card:mt-9" src={craftSymbols[5]?.urlName} alt={`Craft Symbol ${6}`}/>
+      <div class="absolute top-[258px] left-[70px] w-[154px] h-[20px] card:top-[470px] card:left-[135px] card:w-[280px] card:h-[40px] justify-center flex">
+        <text class="font-[Luminari] text-[0.695em] card:text-[1.25em] relative whitespace-pre truncate  inset-x-0 break-all">{cardTitle}</text>
+      </div>
+      <div class="absolute top-[273px] left-[70px] w-[154px] h-[44px] card:top-[495px] card:left-[135px] card:w-[280px] card:h-[80px] justify-center flex">
+        <text class="font-[Baskervville] text-[0.611em] card:text-[1.1em]  leading-[1.1em] whitespace-pre-wrap truncate items-center justify-center relative inset-x-0">{cardDescription}</text>
+      </div>
     </div> 
   </div>
       
 
   <div class="w-9/10 lg:w-[calc(100%-650px)] mx-6">
     <label for="cardName" class="block mt-2 textsizer font-medium text-gray-700">Card Name</label>
-    <input type="text" id="cardName" name="cardName" maxlength="30" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm smga:text-3xl gmga:text-5xl">
+    <input type="text" bind:value={cardTitle} id="cardName" name="cardName" maxlength="28" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-m smga:text-3xl">
     
     <label for="cardDescription" class="block mt-4 textsizer font-medium text-gray-700">Card Description</label>
-    <textarea id="cardDescription" name="cardDescription" maxlength="250" rows="6" class="resize-none field-sizing mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm smga:text-3xl gmga:text-5xl"></textarea>
+    <textarea id="cardDescription" bind:value={cardDescription} name="cardDescription" maxlength="160" rows="4" class="resize-none field-sizing mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-m smga:text-3xl"></textarea>
     
     
     <div class="columns-1 xl:columns-3 mt-4">
       <label for="cardName" class="block textsizer font-medium text-gray-700">Position from left (x)</label>
-      <input type="number" id="cardName" bind:value={leftpos} name="cardName" maxlength="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm smga:text-3xl gmga:text-5xl">
+      <input type="number" id="cardName" bind:value={leftpos} name="cardName" maxlength="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-m smga:text-3xl">
       <label for="cardName" class="block mt-2 textsizer font-medium text-gray-700">Position from top (y)</label>
-      <input type="number" id="cardName" bind:value={toppos} name="cardName" maxlength="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm smga:text-3xl gmga:text-5xl">
+      <input type="number" id="cardName" bind:value={toppos} name="cardName" maxlength="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-m smga:text-3xl">
       <label for="cardName" class="block mt-2 textsizer font-medium text-gray-700">Scale (%)</label>
-      <input type="number" id="cardName" bind:value={scalepos} name="cardName" maxlength="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm smga:text-3xl gmga:text-5xl">
+      <input type="number" id="cardName" bind:value={scalepos} name="cardName" maxlength="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-m smga:text-3xl">
     </div>
    
 
@@ -228,7 +272,7 @@
       <label for="crafting" class="block lg:col textsizer font-medium text-gray-700">Card Suit</label>
       <div class="gap-1 mt-2 justify-center lg:justify-start items-center flex">
         <button disabled={suitButtonState[0].isClicked} class="buttonBig enabled:bg-blue-900 enabled:hover:bg-blue-100 bg-gray-50 shadow-lg/30 border-white border-3 rounded-full" onclick={() => {setCardSuit("wild");}}>
-          <img class="buttonBigInside object-contain " src={wildSuit} alt="Wild Suit"/>
+          <img class="buttonBigInside object-contain" src={wildSuit} alt="Wild Suit"/>
         </button>
         <button disabled={suitButtonState[1].isClicked} class="buttonBigRabbit enabled:bg-yellow-900 enabled:hover:bg-yellow-100 bg-gray-50  shadow-lg/30 border-white border-3 rounded-full" onclick={() => {setCardSuit("rabbit");}}>
           <img class="buttonBigInside object-contain" src={rabbitSuit} alt="Rabbit Suit"/>
@@ -252,7 +296,7 @@
       </div>
     </div>
 
-    <div class="columns-1 xl:columns-2 mt-4">
+    <div class="columns-1 2xl:columns-2 mt-4">
       <label for="crafting" class="block mr-4 textsizer font-medium text-gray-700">Crafting Icons</label>
       <div class="gap-1 mt-2 justify-center lg:justify-start items-center flex">
         <button class="buttonBig bg-yellow-600 hover:bg-yellow-800  shadow-lg/30 font-bold rounded" onclick={() => {addCraftSymbol("wild");}}>
@@ -271,28 +315,16 @@
 
       <label for="craftingCurrent" class="block mt-8 flex sm:justify-start textsizer font-medium text-gray-700">Current Crafting Requirements</label>
       <div class="gap-1 mt-2 justify-center lg:justify-start items-center flex">
-        <button class="buttonSmall bg-yellow-500 hover:bg-red-600  shadow-lg/20 font-bold rounded" onclick={() => {removeCraftSymbol(0)}}>
-          <img class="buttonSmallInside object-contain" src={craftSymbols[0]?.urlName} alt="Craft Symbol 0"/>
+      {#each craftSymbols as symbol, i}
+        <button class="buttonBig bg-yellow-500 hover:bg-red-600  shadow-lg/20 font-bold rounded" onclick={() => {removeCraftSymbol(i)}}>
+          <img class="buttonBigInside object-contain" src={symbol?.urlName} alt={`Craft Symbol ${i}`}/>
         </button>
-        <button class="buttonSmall bg-yellow-500 hover:bg-red-600  shadow-lg/20 font-bold rounded" onclick={() => {removeCraftSymbol(1)}}>
-          <img class="buttonSmallInside object-contain" src={craftSymbols[1]?.urlName} alt="Craft Symbol 1"/>
-        </button>
-        <button class="buttonSmall bg-yellow-500 hover:bg-red-600  shadow-lg/20 font-bold rounded" onclick={() => {removeCraftSymbol(2)}}>
-          <img class="buttonSmallInside object-contain" src={craftSymbols[2]?.urlName} alt="Craft Symbol 2"/>
-        </button>
-        <button class="buttonSmall bg-yellow-500 hover:bg-red-600  shadow-lg/20 font-bold rounded" onclick={() => {removeCraftSymbol(3)}}>
-          <img class="buttonSmallInside object-contain" src={craftSymbols[3]?.urlName} alt="Craft Symbol 3"/>
-        </button>
-        <button class="buttonSmall bg-yellow-500 hover:bg-red-600  shadow-lg/20 font-bold rounded" onclick={() => {removeCraftSymbol(4)}}>
-          <img class="buttonSmallInside object-contain" src={craftSymbols[4]?.urlName} alt="Craft Symbol 4"/>
-        </button>
-        <button class="buttonSmall bg-yellow-500 hover:bg-red-600  shadow-lg/20 font-bold rounded" onclick={() => {removeCraftSymbol(5)}}>
-          <img class="buttonSmallInside object-contain" src={craftSymbols[5]?.urlName} alt="Craft Symbol 5"/>
-        </button>
+      {/each}
       </div>
+    
     </div>
       
-    <label for="loadedImage" class="block mt-8 flex sm:justify-start textsizer font-medium text-gray-700">Load Image</label>
+    <label for="loadxdddd" class="block mt-8 flex sm:justify-start textsizer font-medium text-gray-700">Load Image</label>
     <button command="show-modal" commandfor="dialog" class="bg-yellow-600 hover:bg-yellow-800 p-3 shadow-lg/30 font-bold rounded">Open dialog</button>
     <el-dialog>
       <dialog id="dialog" aria-labelledby="dialog-title" class="fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto bg-transparent backdrop:bg-transparent">
@@ -315,8 +347,8 @@
         </div>
       </dialog>
     </el-dialog>
-    <label for="loadedImage" class="block mt-8 flex sm:justify-start textsizer font-medium text-gray-700">Merge Image</label>
-    <button class="bg-yellow-600 hover:bg-yellow-800 p-3 shadow-lg/30 font-bold rounded">Merge Image</button>
+    <label for="loadxdd222" class="block mt-8 flex sm:justify-start textsizer font-medium text-gray-700">Merge Image</label>
+    <button class="bg-yellow-600 hover:bg-yellow-800 p-3 shadow-lg/30 font-bold rounded" onclick={() => { screenshot() }}>Merge Image</button>
   </div>
 </div>
 
@@ -328,11 +360,7 @@
     background-size: cover;
     background-repeat: repeat;
   }
-  p {
-    color: rgb(211, 91, 0);
-    font-family: 'Comics Sans MS', cursive;
-    font-size: 1.5em;
-  }  
+
   .bg-birdcolor{
     background-color: rgb(106, 190, 194);
   } 
@@ -346,39 +374,39 @@
     background-color: rgb(251, 157, 105);
   } 
   .textsizer {
-    font-size: max(1.25vw,1rem);
+    font-size: 1rem;
   }
   .buttonSmall{
-    width: max(2vw,2rem);
-    height: max(2vw,2rem);
-    padding: max(0.25vw,0.25rem);
+    width: 2rem;
+    height: 2rem;
+    padding: 0.25rem;
   }
   .buttonSmallInside{
-    width: max(1.5vw,1.5rem);
-    height: max(1.5vw,1.5rem);  
+    width: 1.5rem;
+    height: 1.5rem;  
   }
   .buttonBig{
-    width: max(3vw,3rem);
-    height: max(3vw,3rem);
-    padding: max(0.5vw,0.5rem);
+    width: 4rem;
+    height: 4rem;
+    padding: 0.5rem;
   }
   .buttonBigRabbit{
-    width: max(3vw,3rem);
-    height: max(3vw,3rem);
-    padding: max(0.4vw,0.4rem);
+    width: 4rem;
+    height: 4rem;
+    padding: 0.4rem;
   }
   .buttonBigInside{
-    width: max(2vw,2rem);
-    height: max(2vw,2rem);
+    width: 3rem;
+    height: 3rem;
   }
   .buttonCardType{
-    width: max(6vw,6rem);
-    height: max(3vw,3rem);
-    padding: max(0.5vw,0.5rem);
+    width: 8rem;
+    height: 4rem;
+    padding: 0.5rem;
   }
   .buttonCardTypeInside{
-    width: max(6vw,6rem);
-    height: max(2vw,2rem);
+    width: 8rem;
+    height: 3rem;
   }
   .bleedBorder{
     outline-offset: -10px;

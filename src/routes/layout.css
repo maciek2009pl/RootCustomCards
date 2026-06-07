@@ -3,7 +3,7 @@
 @plugin '@tailwindcss/typography';
 
 @theme {
-  --breakpoint-card: 56rem;
+  --breakpoint-card: 40rem;
   --breakpoint-mga: 150rem;
   --breakpoint-smga: 120rem;
   --breakpoint-gmga: 180rem;
