@@ -1,7 +1,20 @@
 
 <script lang="ts">
-
+  const colorSuitButtons = {
+    tailwindBlueSuit: "enabled:bg-blue-900 enabled:hover:bg-blue-100",
+    tailwindYellowSuit: "enabled:bg-yellow-900 enabled:hover:bg-blue-100",
+    tailwindRedSuit: "enabled:bg-red-900 enabled:hover:bg-blue-100",
+    tailwindOrangeSuit: "enabled:bg-orange-900 enabled:hover:bg-blue-100"
+  }
+  const colorSuitHeader = {
+    tailwindBlueSuit: "bg-teal-700/50",
+    tailwindYellowSuit: "bg-yellow-500/50",
+    tailwindRedSuit: "bg-red-700/50 ",
+    tailwindOrangeSuit: "bg-orange-700/50",
+    empty: "bg-brown-200/50"
+  }
   let craftSymbols = $state<CraftSymbol[]>([]);
+  let checkCraft = $state([false,false,false,false,false,false]);
   let craftCounter = $state(0);
   let circleType= $state('');
   let cardBox = $state('');
@@ -35,7 +48,7 @@
   import mouseSuit from '/src/lib/assets/Icon - Mouse.png';
   import foxSuit from '/src/lib/assets/Icon - Fox.png';
   import wildSuit from '/src/lib/assets/Icon - Bird.png';
-  import cardBase from '/src/lib/assets/cardBase.png';
+
   import paperBox from '/src/lib/assets/paperbox2.png';
   import paperBoxMini from '/src/lib/assets/paperboxMini.png';
   import stoneBoxMini from '/src/lib/assets/stoneboxMini.png';
@@ -43,8 +56,11 @@
   import craftBG from '/src/lib/assets/craftBG.png';
   import emptySuit from '/src/lib/assets/empty icon.png';
   import html2canvas from 'html2canvas-pro';
-  import rootLogo from '/src/lib/assets/logo.png'
   import { onMount } from 'svelte';
+	import AddCraftButton from './AddCraftButton.svelte';
+  import CardReveal from './CardReveal.svelte';
+	import ChangeSuitButton from './ChangeSuitButton.svelte';
+	import ChangingLogo from './ChangingLogo.svelte';
   onMount(() => {
     console.log("mount");
     craftSymbols = [new CraftSymbolEmpty(), new CraftSymbolEmpty(), new CraftSymbolEmpty(), new CraftSymbolEmpty(), new CraftSymbolEmpty(), new CraftSymbolEmpty()];
@@ -100,6 +116,7 @@
           craftSymbols[craftCounter] = new CraftSymbolFox();
           break;
       }
+      checkCraft[craftCounter] = true;
       craftCounter++;
     }
     console.log(craftCounter);
@@ -112,6 +129,7 @@
     }
     else {
       craftSymbols[i] = new CraftSymbolEmpty();
+      checkCraft[craftCounter] = false;
       craftCounter--;
       sortCraftSymbols();
     }
@@ -167,7 +185,8 @@
 
 
   function hideShowcase() {
-    showcaseVisible = false;
+    if(imageShowcase)
+      showcaseVisible = false;
   }
   function showShowcase() {
     showcaseVisible = true;
@@ -201,15 +220,22 @@
     console.log("screenshot3");
   }
 </script>
+{#if suitButtonState[0].isClicked}
+  <ChangingLogo color={colorSuitHeader.tailwindBlueSuit}></ChangingLogo>
+{:else if suitButtonState[1].isClicked}
+  <ChangingLogo color={colorSuitHeader.tailwindYellowSuit}></ChangingLogo>
+{:else if suitButtonState[3].isClicked}
+  <ChangingLogo color={colorSuitHeader.tailwindRedSuit}></ChangingLogo>
+{:else if suitButtonState[2].isClicked}
+  <ChangingLogo color={colorSuitHeader.tailwindOrangeSuit}></ChangingLogo>
+{:else}
+  <ChangingLogo color={colorSuitHeader.empty}></ChangingLogo>
+{/if}
 
-<div class="top-0 w-full justify-center bg-red-900/50 shadow/30 flex" > 
-  <img src={rootLogo} class="opacity-100 w-full sm:w-1/2 lg:w-1/4 object-top m-2 align-center" alt="logo"/>
-</div>
 <div class=" flex flex-row flex-wrap mt-8 gap-4 justify-center">
   <div id="captureCard" class="lg:sticky top-0 mt-4 w-[250px] aspect-3/4 card:w-[450px] card:h-[625px] flex">
     <div class="relative">
-      <img hidden={!showcaseVisible} class="shadow/90" src={cardBase} alt="Card Base"/>
-      <img hidden={showcaseVisible} class="aspect-72/100 object-cover shadow/90" draggable=true src={imageShowcase} alt="Card Base"/>
+      <CardReveal show={showcaseVisible} source={imageShowcase}/>
       {#if cardBox!=""}
         <img class="absolute top-[256px] w-[172px] card:top-[464px] right-0 mr-4 mb-2 card:mr-6 card:mb-9 card:w-[310px]" src={cardBox} alt="Card Box"/>
         <img class="absolute left-0 bottom-0 ml-4 mb-2 card:ml-8 card:mb-11 w-[39px] card:w-[70px]" src={craftBG} alt="Card Box"/>
@@ -234,19 +260,19 @@
       {#if circleType!=""}
         <img class="absolute left-0 top-0 ml-5 mt-5 card:ml-10 card:mt-10 w-[44px] h-[44px] card:w-[80px] card:h-[80px]" src={circleType} alt="Card Box"/>
       {/if}
-      <img class="absolute w-[19px] h-[19px] top-0 right-0 mr-5 mt-5 card:w-[36px] card:h-[36px] card:mr-9 card:mt-9" src={craftSymbols[0]?.urlName} alt={`Craft Symbol ${1}`}/>
-      <img class="absolute w-[19px] h-[19px] top-0 right-0 mr-10 mt-5 card:w-[36px] card:h-[36px] card:mr-18 card:mt-9" src={craftSymbols[1]?.urlName} alt={`Craft Symbol ${2}`}/>
-      <img class="absolute w-[19px] h-[19px] top-0 right-0 mr-15 mt-5 card:w-[36px] card:h-[36px] card:mr-27 card:mt-9" src={craftSymbols[2]?.urlName} alt={`Craft Symbol ${3}`}/>
-      <img class="absolute w-[19px] h-[19px] top-0 right-0 mr-20 mt-5 card:w-[36px] card:h-[36px] card:mr-36 card:mt-9" src={craftSymbols[3]?.urlName} alt={`Craft Symbol ${4}`}/>
-      <img class="absolute w-[19px] h-[19px] top-0 right-0 mr-25 mt-5 card:w-[36px] card:h-[36px] card:mr-45 card:mt-9" src={craftSymbols[4]?.urlName} alt={`Craft Symbol ${5}`}/>
-      <img class="absolute w-[19px] h-[19px] top-0 right-0 mr-30 mt-5 card:w-[36px] card:h-[36px] card:mr-54 card:mt-9" src={craftSymbols[5]?.urlName} alt={`Craft Symbol ${6}`}/>
+      <img hidden={!checkCraft[0]} class="absolute w-[19px] h-[19px] top-0 right-0 mr-5 mt-5 card:w-[36px] card:h-[36px] card:mr-9 card:mt-9" src={craftSymbols[0]?.urlName} alt={`Craft Symbol ${1}`}/>
+      <img hidden={!checkCraft[1]} class="absolute w-[19px] h-[19px] top-0 right-0 mr-10 mt-5 card:w-[36px] card:h-[36px] card:mr-18 card:mt-9" src={craftSymbols[1]?.urlName} alt={`Craft Symbol ${2}`}/>
+      <img hidden={!checkCraft[2]} class="absolute w-[19px] h-[19px] top-0 right-0 mr-15 mt-5 card:w-[36px] card:h-[36px] card:mr-27 card:mt-9" src={craftSymbols[2]?.urlName} alt={`Craft Symbol ${3}`}/>
+      <img hidden={!checkCraft[3]} class="absolute w-[19px] h-[19px] top-0 right-0 mr-20 mt-5 card:w-[36px] card:h-[36px] card:mr-36 card:mt-9" src={craftSymbols[3]?.urlName} alt={`Craft Symbol ${4}`}/>
+      <img hidden={!checkCraft[4]} class="absolute w-[19px] h-[19px] top-0 right-0 mr-25 mt-5 card:w-[36px] card:h-[36px] card:mr-45 card:mt-9" src={craftSymbols[4]?.urlName} alt={`Craft Symbol ${5}`}/>
+      <img hidden={!checkCraft[5]} class="absolute w-[19px] h-[19px] top-0 right-0 mr-30 mt-5 card:w-[36px] card:h-[36px] card:mr-54 card:mt-9" src={craftSymbols[5]?.urlName} alt={`Craft Symbol ${6}`}/>
 
-      <img class="absolute w-[19px] h-[19px] bottom-0 left-0 ml-5 mb-4 card:w-[36px] card:h-[36px] card:ml-10  card:mb-14" src={craftSymbols[0]?.urlName} alt={`Craft Symbol ${1}`}/>
-      <img class="absolute w-[19px] h-[19px] bottom-0 left-0 ml-8 mb-5 card:w-[36px] card:h-[36px] card:ml-15 card:mb-16" src={craftSymbols[1]?.urlName} alt={`Craft Symbol ${2}`}/>
-      <img class="absolute w-[19px] h-[19px] bottom-0 left-0 ml-5 mb-7 card:w-[36px] card:h-[36px] card:ml-10 card:mb-20" src={craftSymbols[2]?.urlName} alt={`Craft Symbol ${3}`}/>
-      <img class="absolute w-[19px] h-[19px] bottom-0 left-0 ml-8 mb-8 card:w-[36px] card:h-[36px] card:ml-15 card:mb-22" src={craftSymbols[3]?.urlName} alt={`Craft Symbol ${4}`}/>
-      <img class="absolute w-[19px] h-[19px] bottom-0 left-0 ml-5 mb-10 card:w-[36px] card:h-[36px] card:ml-10 card:mb-26" src={craftSymbols[4]?.urlName} alt={`Craft Symbol ${5}`}/>
-      <img class="absolute w-[19px] h-[19px] bottom-0 left-0 ml-8 mb-11 card:w-[36px] card:h-[36px] card:ml-15 card:mb-28" src={craftSymbols[5]?.urlName} alt={`Craft Symbol ${6}`}/>
+      <img hidden={!checkCraft[0]} class="absolute w-[19px] h-[19px] bottom-0 left-0 ml-5 mb-4 card:w-[36px] card:h-[36px] card:ml-10  card:mb-14" src={craftSymbols[0]?.urlName} alt={`Craft Symbol ${1}`}/>
+      <img hidden={!checkCraft[1]} class="absolute w-[19px] h-[19px] bottom-0 left-0 ml-8 mb-5 card:w-[36px] card:h-[36px] card:ml-15 card:mb-16" src={craftSymbols[1]?.urlName} alt={`Craft Symbol ${2}`}/>
+      <img hidden={!checkCraft[2]} class="absolute w-[19px] h-[19px] bottom-0 left-0 ml-5 mb-7 card:w-[36px] card:h-[36px] card:ml-10 card:mb-20" src={craftSymbols[2]?.urlName} alt={`Craft Symbol ${3}`}/>
+      <img hidden={!checkCraft[3]} class="absolute w-[19px] h-[19px] bottom-0 left-0 ml-8 mb-8 card:w-[36px] card:h-[36px] card:ml-15 card:mb-22" src={craftSymbols[3]?.urlName} alt={`Craft Symbol ${4}`}/>
+      <img hidden={!checkCraft[4]} class="absolute w-[19px] h-[19px] bottom-0 left-0 ml-5 mb-10 card:w-[36px] card:h-[36px] card:ml-10 card:mb-26" src={craftSymbols[4]?.urlName} alt={`Craft Symbol ${5}`}/>
+      <img hidden={!checkCraft[5]} class="absolute w-[19px] h-[19px] bottom-0 left-0 ml-8 mb-11 card:w-[36px] card:h-[36px] card:ml-15 card:mb-28" src={craftSymbols[5]?.urlName} alt={`Craft Symbol ${6}`}/>
       <div class="absolute top-[258px] left-[70px] w-[154px] h-[20px] card:top-[470px] card:left-[135px] card:w-[280px] card:h-[40px] justify-center flex">
         <text class="font-[Luminari] text-[0.695em] card:text-[1.25em] relative whitespace-pre truncate  inset-x-0 break-all">{cardTitle}</text>
       </div>
@@ -264,32 +290,14 @@
     <label for="cardDescription" class="block mt-4 textsizer font-medium text-gray-700">Card Description</label>
     <textarea id="cardDescription" bind:value={cardDescription} name="cardDescription" maxlength="160" rows="4" class="resize-none field-sizing mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-m smga:text-3xl"></textarea>
     
-    <!--
-    <div class="columns-1 xl:columns-3 mt-4">
-      <label for="cardName" class="block textsizer font-medium text-gray-700">Position from left (x)</label>
-      <input type="number" id="cardName" bind:value={leftpos} name="cardName" maxlength="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-m smga:text-3xl">
-      <label for="cardName" class="block mt-2 textsizer font-medium text-gray-700">Position from top (y)</label>
-      <input type="number" id="cardName" bind:value={toppos} name="cardName" maxlength="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-m smga:text-3xl">
-      <label for="cardName" class="block mt-2 textsizer font-medium text-gray-700">Scale (%)</label>
-      <input type="number" id="cardName" bind:value={scalepos} name="cardName" maxlength="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-m smga:text-3xl">
-    </div>
-   -->
 
     <div class="columns-1 xl:columns-2 mt-4">
       <label for="crafting" class="block lg:col textsizer font-medium text-gray-700">Card Suit</label>
       <div class="gap-1 mt-2 justify-center lg:justify-start items-center flex">
-        <button disabled={suitButtonState[0].isClicked} class="buttonBig enabled:bg-blue-900 enabled:hover:bg-blue-100 bg-gray-50 shadow-lg/30 border-white border-3 rounded-full" onclick={() => {setCardSuit("wild");}}>
-          <img class="buttonBigInside object-contain" src={wildSuit} alt="Wild Suit"/>
-        </button>
-        <button disabled={suitButtonState[1].isClicked} class="buttonBigRabbit enabled:bg-yellow-900 enabled:hover:bg-yellow-100 bg-gray-50  shadow-lg/30 border-white border-3 rounded-full" onclick={() => {setCardSuit("rabbit");}}>
-          <img class="buttonBigInside object-contain" src={rabbitSuit} alt="Rabbit Suit"/>
-        </button>
-        <button disabled={suitButtonState[3].isClicked} class="buttonBig enabled:bg-red-900 enabled:hover:bg-red-100 bg-gray-50  shadow-lg/30 border-white border-3 rounded-full" onclick={() => {setCardSuit("fox");}}>
-          <img class="buttonBigInside object-contain" src={foxSuit} alt="Fox Suit"/>
-        </button>
-        <button disabled={suitButtonState[2].isClicked} class="buttonBig enabled:bg-orange-900 enabled:hover:bg-orange-100 bg-gray-50  shadow-lg/30 border-white border-3 rounded-full" onclick={() => {setCardSuit("mouse");}}>
-          <img class="buttonBigInside object-contain" src={mouseSuit} alt="Mouse Suit"/>
-        </button>
+        <ChangeSuitButton disable={suitButtonState[0].isClicked} source={wildSuit} suit="wild" addHandler={setCardSuit} twColors={colorSuitButtons.tailwindBlueSuit}></ChangeSuitButton>
+        <ChangeSuitButton disable={suitButtonState[1].isClicked} source={rabbitSuit} suit="rabbit" addHandler={setCardSuit} twColors={colorSuitButtons.tailwindYellowSuit}></ChangeSuitButton>
+        <ChangeSuitButton disable={suitButtonState[3].isClicked} source={foxSuit} suit="fox" addHandler={setCardSuit} twColors={colorSuitButtons.tailwindRedSuit}></ChangeSuitButton>
+        <ChangeSuitButton disable={suitButtonState[2].isClicked} source={mouseSuit} suit="mouse" addHandler={setCardSuit} twColors={colorSuitButtons.tailwindOrangeSuit}></ChangeSuitButton>
       </div>
 
       <label for="bruh" class="block mt-8 flex sm:justify-start textsizer font-medium text-gray-700">Card Type</label>
@@ -306,20 +314,11 @@
     <div class="columns-1 2xl:columns-2 mt-4">
       <label for="crafting" class="block mr-4 textsizer font-medium text-gray-700">Crafting Icons</label>
       <div class="gap-1 mt-2 justify-center lg:justify-start items-center flex">
-        <button class="buttonBig bg-yellow-600 hover:bg-yellow-800  shadow-lg/30 font-bold rounded" onclick={() => {addCraftSymbol("wild");}}>
-          <img class="buttonBigInside object-contain" src={oneWild} alt="Wild Symbol"/>
-        </button>
-        <button class="buttonBig bg-yellow-600 hover:bg-yellow-800  shadow-lg/30 font-bold rounded" onclick={() => {addCraftSymbol("rabbit");}}>
-          <img class="buttonBigInside object-contain" src={oneRabbit} alt="Rabbit Symbol"/>
-        </button>
-        <button class="buttonBig bg-yellow-600 hover:bg-yellow-800  shadow-lg/30 font-bold rounded" onclick={() => {addCraftSymbol("fox");}}>
-          <img class="buttonBigInside object-contain" src={oneFox} alt="Fox Symbol"/>
-        </button>
-        <button class="buttonBig bg-yellow-600 hover:bg-yellow-800  shadow-lg/30 font-bold rounded" onclick={() => {addCraftSymbol("mouse");}}>
-          <img class="buttonBigInside object-contain" src={oneMouse} alt="Mouse Symbol"/>
-        </button>
+        <AddCraftButton type="wild" image={oneWild} addHandler={addCraftSymbol}/>
+        <AddCraftButton type="rabbit" image={oneRabbit} addHandler={addCraftSymbol}/>
+        <AddCraftButton type="fox" image={oneFox} addHandler={addCraftSymbol}/>
+        <AddCraftButton type="mouse" image={oneMouse} addHandler={addCraftSymbol}/>
       </div>
-
       <label for="craftingCurrent" class="block mt-8 flex sm:justify-start textsizer font-medium text-gray-700">Current Crafting Requirements</label>
       <div class="gap-1 mt-2 justify-center lg:justify-start items-center flex">
       {#each craftSymbols as symbol, i}
@@ -332,23 +331,15 @@
     </div>
       
     <label for="loadxdddd" class="block mt-8 flex sm:justify-start textsizer font-medium text-gray-700">Load Image</label>
-    <button command="show-modal" commandfor="dialog" class="bg-yellow-600 hover:bg-yellow-800 p-3 shadow-lg/30 font-bold rounded" onclick={() => {showShowcase()} }>Open dialog</button>
+    <button command="show-modal" commandfor="dialog" class="bg-yellow-600 hover:bg-yellow-800 mt-4 p-3 shadow-lg/30 font-bold rounded" onclick={() => {showShowcase()} }>Open dialog</button>
     <el-dialog>
       <dialog id="dialog" aria-labelledby="dialog-title" class="fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto bg-transparent backdrop:bg-transparent">
         <el-dialog-backdrop class="fixed inset-0 bg-gray-500/75 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"></el-dialog-backdrop>
         <div class="flex min-h-full items-end justify-center p-4 text-center focus:outline-none sm:items-center sm:p-0">
 
           <el-dialog-panel class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full sm:max-w-lg data-closed:sm:translate-y-0 data-closed:sm:scale-95">
-            <!--
-            <div class="w-full">
-              <Cropper src={imageShowcase} aspectRatio={72/100} style="height: 300px"/>
-            </div>
-          -->
-            <div>        
-              
-              <div class="bg-gray-50 m-4 flex">
-                <!--<button type="button" aria-label="Upload image" class="w-1/2 m-2 justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500">
-                -->  
+            <div>          
+              <div class="bg-gray-50 m-4 flex"> 
                 <input type="file" bind:files accept="image/png image/jpeg" id="loadedImage" name="avatar" class="w-1/2 m-2 justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500" onchange={() => { loaded = true}}/>
                 <button type="button" command="close" commandfor="dialog" class="w-1/2 m-2 justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50">Cancel</button>
                 <button type="button" command="close" commandfor="dialog" class="w-1/2 m-2 justify-center rounded-md bg-green-300 px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50" onclick={() => { hideShowcase()  }}>Confirm</button>
@@ -359,7 +350,7 @@
       </dialog>
     </el-dialog>
     <label for="loadxdd222" class="block mt-8 flex sm:justify-start textsizer font-medium text-gray-700">Merge Image</label>
-    <button class="bg-yellow-600 hover:bg-yellow-800 p-3 shadow-lg/30 mb-16 font-bold rounded" onclick={() => { screenshot() }}>Merge Image</button>
+    <button class="bg-yellow-600 hover:bg-yellow-800 p-3 shadow-lg/30 mb-16 mt-4 font-bold rounded" onclick={() => { screenshot() }}>Merge Image</button>
   </div>
 </div>
 
