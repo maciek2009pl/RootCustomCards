@@ -3,7 +3,6 @@
 
   let craftSymbols = $state<CraftSymbol[]>([]);
   let craftCounter = $state(0);
-  let cardSuit = $state('');
   let circleType= $state('');
   let cardBox = $state('');
   let suitButtonState = $state([
@@ -19,10 +18,11 @@
   let files = $state<FileList | null | undefined>(null);
   let imageShowcase = $derived(files?.length ? URL.createObjectURL(files[0]) : undefined);
   let showcaseVisible = $state(true);
-  let scalepos = $state(2);
-  let leftpos = $state(0);
-  let toppos = $state(0);
-
+  let loaded = $state(false);
+  let cardTitle = $state("")
+  let cardDescription = $state(""); 
+  let checkSuitButton = $inspect(suitButtonState);
+  
   import oneRabbit from '/src/lib/assets/onerabbit.png';
   import oneMouse from '/src/lib/assets/onemouse.png';
   import oneFox from '/src/lib/assets/onefox.png';
@@ -43,20 +43,12 @@
   import craftBG from '/src/lib/assets/craftBG.png';
   import emptySuit from '/src/lib/assets/empty icon.png';
   import html2canvas from 'html2canvas-pro';
-  import { Cropper } from '@we-are-singular/svelte-chop-chop';
-
+  import rootLogo from '/src/lib/assets/logo.png'
   import { onMount } from 'svelte';
-  let loaded = $state(false);
-  let cropper: any;
-  let hiddenCapture = $state(true);
-  let cardTitle = $state("")
-  let cardDescription = $state(""); 
   onMount(() => {
     console.log("mount");
     craftSymbols = [new CraftSymbolEmpty(), new CraftSymbolEmpty(), new CraftSymbolEmpty(), new CraftSymbolEmpty(), new CraftSymbolEmpty(), new CraftSymbolEmpty()];
   });
-
-
 
 
   class CraftSymbol {
@@ -128,33 +120,34 @@
     craftSymbols.sort((a,b) => b.sortNumber - a.sortNumber);
   }
 
+
+
   function setCardSuit(suit: string) {
     suitButtonState.forEach((button) => {
       button.isClicked = false;
     });
     switch(suit) {
       case 'wild':
-        cardSuit = wildSuit;
         circleType = circleWild;
         suitButtonState[0].isClicked = true;
         break;
       case 'rabbit':
-        cardSuit = rabbitSuit;
         circleType = circleRabbit;
         suitButtonState[1].isClicked = true;
         break;
       case 'mouse':
-        cardSuit = mouseSuit;
         circleType = circleMouse;
         suitButtonState[2].isClicked = true;
         break;
       case 'fox':
-        cardSuit = foxSuit;
         circleType = circleFox;
         suitButtonState[3].isClicked = true;
         break;
     }
   }
+
+
+
   function setBoxType(type: string) {
     boxButtonState.forEach((button) => {
       button.isClicked = false;
@@ -171,6 +164,8 @@
     }
   }
 
+
+
   function hideShowcase() {
     showcaseVisible = false;
   }
@@ -179,13 +174,13 @@
   }
 
 
+
   function downloadURI(uri: string, name: string) {
     var link = document.createElement("a");
     link.download = name;
     link.href = uri;
     link.click();
   }
-
   function screenshot() {
     console.log("screenshot");
     const el = document.querySelector("#captureCard") as HTMLElement | null;
@@ -205,24 +200,13 @@
     });
     console.log("screenshot3");
   }
-
 </script>
 
-{#snippet cropToolbar(cropper: any)}
-  <button onclick={async () => {
-    const result = await cropper.export({ format: 'image/webp', quality: 0.9 });
-    if (result.blob) {
-      const url = URL.createObjectURL(result.blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'cropped.webp';
-      a.click();
-    }
-  }}>Crop</button>
-{/snippet}
-
+<div class="top-0 w-full justify-center bg-red-900/50 shadow/30 flex" > 
+  <img src={rootLogo} class="opacity-100 w-full sm:w-1/2 lg:w-1/4 object-top m-2 align-center" alt="logo"/>
+</div>
 <div class=" flex flex-row flex-wrap mt-8 gap-4 justify-center">
-  <div id="captureCard" class=" w-[250px] aspect-3/4 card:w-[450px] card:h-[625px] flex">
+  <div id="captureCard" class="lg:sticky top-0 mt-4 w-[250px] aspect-3/4 card:w-[450px] card:h-[625px] flex">
     <div class="relative">
       <img hidden={!showcaseVisible} class="shadow/90" src={cardBase} alt="Card Base"/>
       <img hidden={showcaseVisible} class="aspect-72/100 object-cover shadow/90" draggable=true src={imageShowcase} alt="Card Base"/>
@@ -355,10 +339,11 @@
         <div class="flex min-h-full items-end justify-center p-4 text-center focus:outline-none sm:items-center sm:p-0">
 
           <el-dialog-panel class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full sm:max-w-lg data-closed:sm:translate-y-0 data-closed:sm:scale-95">
+            <!--
             <div class="w-full">
-              <Cropper bind:this={cropper} src={imageShowcase} aspectRatio={72/100} style="height: 200px"/>
-              <button type="button" command="close" commandfor="dialog" class="justify-center rounded-md bg-green-300 px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50" onclick={() => { cropToolbar(cropper); hideShowcase(); }}>Crop</button>
+              <Cropper src={imageShowcase} aspectRatio={72/100} style="height: 300px"/>
             </div>
+          -->
             <div>        
               
               <div class="bg-gray-50 m-4 flex">
@@ -374,7 +359,7 @@
       </dialog>
     </el-dialog>
     <label for="loadxdd222" class="block mt-8 flex sm:justify-start textsizer font-medium text-gray-700">Merge Image</label>
-    <button class="bg-yellow-600 hover:bg-yellow-800 p-3 shadow-lg/30 font-bold rounded" onclick={() => { screenshot() }}>Merge Image</button>
+    <button class="bg-yellow-600 hover:bg-yellow-800 p-3 shadow-lg/30 mb-16 font-bold rounded" onclick={() => { screenshot() }}>Merge Image</button>
   </div>
 </div>
 
